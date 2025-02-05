@@ -26,24 +26,22 @@ st.dataframe(pd_df)  # Display the DataFrame
 # **FIX: Use a list of fruit names instead of passing `my_dataframe` directly**
 ingredients_list = st.multiselect(
     "Choose up to 5 ingredients:",
-    pd_df["FRUIT_NAME"].tolist(),  # Convert to list
+    pd_df["FRUIT_NAME"].tolist(), 
     max_selections=5
 )
 
 if ingredients_list:
-    ingredients_string = ' '.join(ingredients_list)
 
     for fruit_chosen in ingredients_list:
+        ingredients_string = ''
         search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
 
-        st.subheader(f"{fruit_chosen} Nutrition Information")
+        st.subheader(fruit_chosen + 'Nutrition Information')
         fruityvice_response = requests.get(f"https://fruityvice.com/api/fruit/{search_on}")
 
         if fruityvice_response.status_code == 200:
             fv_data = fruityvice_response.json()
             st.dataframe(pd.DataFrame(fv_data))
-        else:
-            st.error(f"Could not retrieve data for {fruit_chosen}")
 
     # Insert order into Snowflake
     my_insert_stmt = f"""INSERT INTO smoothies.public.orders (ingredients, name_on_order)
